@@ -1,0 +1,64 @@
+    # with col2:
+    #     st.markdown('<div class="login-card">', unsafe_allow_html=True)
+    #     st.markdown("""
+    #     <style>
+    #     .login-title {
+    #         text-align: center;
+    #         font-size: 34px;
+    #         font-weight: 800;
+    #         margin-bottom: 25px;
+    #         background: linear-gradient(90deg, #38bdf8, #22c55e);
+    #         -webkit-background-clip: text;
+    #         -webkit-text-fill-color: transparent;
+    #     }
+    #     </style>
+
+    #     <div class="login-title">
+    #         🔐 Login to GenAI Suite
+    #     </div>
+    #     """, unsafe_allow_html=True)
+        
+    #     st.markdown(
+    #     "<p style='text-align:center;color:#94a3b8;margin-top:-10px;'>Secure access to your AI dashboard</p>",
+    #     unsafe_allow_html=True
+    # )
+
+    #     username = st.text_input("Username").strip()
+    #     password = st.text_input("Password", type="password").strip()
+
+    #     st.markdown("""
+    #     <style>
+    #     .stButton > button {
+    #         height: 55px;
+    #         font-size: 18px;
+    #         font-weight: 700;
+    #         border-radius: 12px;
+    #         background: linear-gradient(90deg, #38bdf8, #22c55e);
+    #         color: white;
+    #         border: none;
+    #         transition: 0.3s ease;
+    #     }
+
+    #     .stButton > button:hover {
+    #         transform: scale(1.03);
+    #         box-shadow: 0 5px 15px rgba(34,197,94,0.3);
+    #     }
+    #     </style>
+    #     """, unsafe_allow_html=True)
+        
+        
+    #     if st.button("🚀 LOGIN", use_container_width=True):
+            
+    #         user = login_user(username, password)
+
+    #         if user:
+    #             st.session_state.authenticated = True
+    #             st.session_state.username = username
+    #             st.success("Login successful!")
+    #             st.rerun()
+    #         else:
+    #             st.error("Invalid username or password")
+
+    #     st.markdown("</div>", unsafe_allow_html=True)
+
+    # return False
