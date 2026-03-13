@@ -13,6 +13,66 @@ if not auth.login():
 # ======= MAIN APP STARTS HERE =======
 st.sidebar.success(f"Welcome {st.session_state.username}")
 
+# 🎨 Theme Toggle
+st.sidebar.markdown("### 🎨 Appearance")
+
+dark_mode = st.sidebar.toggle("🌙 Dark Mode", value=True)
+
+if dark_mode:
+    # 🌙 DARK THEME
+    st.markdown("""
+        <style>
+        .stApp {
+            background-color: #0e1117;
+            color: #ffffff;
+        }
+
+        /* Sidebar */
+        section[data-testid="stSidebar"] {
+            background-color: #111827;
+        }
+
+        /* Cards / Containers */
+        .block-container {
+            padding-top: 2rem;
+        }
+
+        /* Buttons */
+        .stButton>button {
+            background-color: #1f2937;
+            color: white;
+            border-radius: 10px;
+            border: 1px solid #374151;
+        }
+
+        </style>
+    """, unsafe_allow_html=True)
+
+else:
+    # ☀ LIGHT THEME
+    st.markdown("""
+        <style>
+        .stApp {
+            background-color: #f5f7fb;
+            color: #111827;
+        }
+
+        /* Sidebar */
+        section[data-testid="stSidebar"] {
+            background-color: #ffffff;
+        }
+
+        /* Buttons */
+        .stButton>button {
+            background-color: #ffffff;
+            color: #111827;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+        }
+
+        </style>
+    """, unsafe_allow_html=True)
+
 # Mee AI features ikkada start avvali
 
 st.set_page_config(layout="wide", page_title="GenAI Applications")
@@ -65,10 +125,19 @@ with st.sidebar:
     if st.button("🚪 Logout"):
         auth.logout()
 
+
+
 # ---------- Routing ----------
 if selected == "Home":
-    st.title("🤖 GenAI Applications")
-    st.subheader("Multi-Feature Generative AI Suite")
+
+    st.title("🏠 Home")
+
+    # Admin panel only inside Home
+    if st.session_state.username == "admin":
+
+        st.markdown("## 🛠 Admin Panel")
+        # admin panel code here
+
 
 elif selected == "Chatbot":
     import chatbot
@@ -107,8 +176,7 @@ if selected == "Home":
     .hero {
         padding: 35px;
         border-radius: 20px;
-        # background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-        background: linear-gradient(90deg, #1f4037, #99f2c8);
+        background: linear-gradient(90deg, #1a1a2e, #16213e, #0f3460);
         color: white;
         box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         margin-bottom: 30px;
@@ -165,7 +233,8 @@ if selected == "Home":
 
 import database
 
-if st.session_state.username == "admin":
+if selected == "Home" and st.session_state.username == "admin":
+    # admin panel code
 
     # ===== Admin Header =====
     st.markdown("""
