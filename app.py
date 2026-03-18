@@ -80,7 +80,11 @@ else:
 
 # Mee AI features ikkada start avvali
 
-st.set_page_config(layout="wide", page_title="GenAI Applications")
+st.set_page_config(
+    page_title="GenAI App",
+    page_icon="logo.png",
+    layout="wide"
+)
 
 # 🔐 LOGIN CHECK FIRST
 if not auth.login():
