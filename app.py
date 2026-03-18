@@ -7,7 +7,12 @@ import streamlit as st
 from auth import login
 
 # Check authentication
-st.set_page_config(layout="wide")
+st.set_page_config(
+    page_title="GenAI App",
+    page_icon="logo.png",
+    layout="wide"
+)
+
 if not auth.login():
     st.stop()
 # ======= MAIN APP STARTS HERE =======
