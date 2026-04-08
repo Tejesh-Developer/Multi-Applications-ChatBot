@@ -1,6 +1,8 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
+import database
+database.log_usage(st.session_state.get("username", "unknown"), "Speech to Text")
 
 load_dotenv()
 # 🔐 API KEYS

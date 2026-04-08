@@ -1,6 +1,8 @@
 import streamlit as st
 from gtts import gTTS
 import os
+import database
+database.log_usage(st.session_state.get("username", "unknown"), "Text to Speech")
 
 def run():
 

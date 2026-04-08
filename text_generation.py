@@ -3,6 +3,8 @@ import streamlit as st
 from dotenv import load_dotenv
 from groq import Groq
 import requests
+import database
+database.log_usage(st.session_state.get("username", "unknown"), "Text Generation")
 
 load_dotenv()
 
