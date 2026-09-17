@@ -292,7 +292,7 @@ def run():
         st.markdown('<div class="section-card">', unsafe_allow_html=True)
         st.markdown('<div class="section-title">👥 All Users</div>', unsafe_allow_html=True)
 
-        users_details = database.get_all_users_details()
+        users_details = [u for u in database.get_all_users_details() if u[0] is not None]
 
         if users_details:
             # Search filter
@@ -359,7 +359,7 @@ def run():
         st.markdown('<div class="section-card">', unsafe_allow_html=True)
         st.markdown('<div class="section-title">🔑 Reset User Password</div>', unsafe_allow_html=True)
 
-        all_usernames = [u[0] for u in users_details if u[0] != "admin"] if users_details else []
+        all_usernames = [u[0] for u in users_details if u[0] not in (None, "admin")] if users_details else []
 
         if all_usernames:
             col1, col2, col3 = st.columns([3, 3, 2])
@@ -510,9 +510,24 @@ def run():
     with tab4:
         st.markdown('<div class="tab-content">', unsafe_allow_html=True)
 
+        # Refresh button — uses session state to track last refresh time
+        if "last_refresh" not in st.session_state:
+            st.session_state["last_refresh"] = datetime.now().strftime("%H:%M:%S")
+
         col1, col2 = st.columns([4, 1])
+        with col1:
+            st.markdown(f"<small style='color:#64748b;'>Last refreshed: {st.session_state['last_refresh']}</small>", unsafe_allow_html=True)
         with col2:
-            if st.button("🔄 Refresh", use_container_width=True):
+            if st.button("🔄 Refresh", use_container_width=True, key="refresh_activity"):
+                # Clear all activity feed records from DB
+                try:
+                    conn = database.connect_db()
+                    conn.execute("DELETE FROM activity_feed")
+                    conn.commit()
+                    conn.close()
+                except:
+                    pass
+                st.session_state["last_refresh"] = datetime.now().strftime("%H:%M:%S")
                 st.rerun()
 
         st.markdown('<div class="section-card">', unsafe_allow_html=True)
@@ -534,6 +549,7 @@ def run():
             for row in activities:
                 username, action, detail, ts = row
                 icon = action_icons.get(action, "⚡")
+                detail_html = f"<span style='color:#64748b;font-size:12px;'> — {detail}</span>" if detail else ""
                 st.markdown(f"""
                 <div class="activity-item">
                     <div style="font-size:20px;margin-top:2px;">{icon}</div>
@@ -541,7 +557,7 @@ def run():
                         <div class="activity-text">
                             <b style="color:#38bdf8;">{username}</b>
                             &nbsp;·&nbsp; {action}
-                            {"<span style='color:#64748b;font-size:12px;'> — " + detail + "</span>" if detail else ""}
+                            {detail_html}
                         </div>
                         <div class="activity-time">🕐 {fmt_time(ts)}</div>
                     </div>
@@ -552,3 +568,4 @@ def run():
 
         st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+

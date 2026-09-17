@@ -21,7 +21,7 @@ def analyze_image(img_bytes, mime_type, prompt):
             "Content-Type": "application/json"
         },
         json={
-            "model": "meta-llama/llama-3.2-11b-vision-instruct",
+            "model": "openai/gpt-oss-120b",
             "messages": [
                 {
                     "role": "user",

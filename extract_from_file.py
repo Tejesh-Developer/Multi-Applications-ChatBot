@@ -113,7 +113,7 @@ def call_vision_ai(prompt, image_bytes, mime_type="image/png"):
             "Content-Type": "application/json"
         },
         json={
-            "model": "meta-llama/llama-3.2-11b-vision-instruct",
+            "model": "meta-llama/llama-3.2-90b-vision-instruct",
             "messages": [
                 {
                     "role": "user",

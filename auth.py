@@ -1,112 +1,403 @@
 import streamlit as st
 from database import create_table, login_user, register_user
+import time
+
+IMAGES = [
+    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=90",
+    "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1600&q=90",
+    "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1600&q=90",
+    "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=1600&q=90",
+    "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&q=90",
+]
+CAPS = ["Artificial Intelligence","Neural Networks","Advanced Robotics","Next-Gen Computing","Intelligent Coding"]
+SUBS = [
+    "Powering the next generation of intelligent applications",
+    "Deep learning models that understand your world",
+    "Transforming how humans interact with technology",
+    "Building tomorrow's digital infrastructure today",
+    "AI-assisted development at lightning speed",
+]
 
 def login():
     create_table()
-
-    if "show_signup" not in st.session_state:
-        st.session_state.show_signup = False
-    if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
-    if "username" not in st.session_state:
-        st.session_state.username = None
+    for k, v in [("authenticated",False),("username",None),("slide_idx",0),
+                 ("auth_mode",None),("login_err",""),("reg_err",""),("reg_ok",False),
+                 ("forgot_mode",False),("forgot_msg",""),("forgot_err","")]:
+        if k not in st.session_state:
+            st.session_state[k] = v
 
     if st.session_state.authenticated:
         return True
 
-    st.markdown("""
-    <style>
-    .stApp { background-color: #0b1120; }
-    .hero {
-        background: linear-gradient(135deg, #1f4037, #99f2c8);
-        padding: 35px; border-radius: 25px; text-align: center;
-        margin-bottom: 60px; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-    }
-    .hero h1 { font-size: 34px; font-weight: 800; color: #0f172a; }
-    .hero p  { font-size: 16px; color: #0f172a; margin-top: 8px; }
-    .login-title {
-        font-size: 34px; font-weight: 700;
-        background: linear-gradient(90deg,#38bdf8,#22c55e);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .sub-text { color: #94a3b8; font-size: 15px; margin-bottom: 25px; }
-    .stButton > button {
-        height: 55px; font-size: 18px; font-weight: 700;
-        border-radius: 12px;
-        background: linear-gradient(90deg, #38bdf8, #22c55e);
-        color: white; border: none; transition: 0.3s ease;
-    }
-    .stButton > button:hover {
-        transform: scale(1.03);
-        box-shadow: 0 5px 15px rgba(34,197,94,0.3);
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    mode = st.session_state.auth_mode
 
-    st.markdown("""
-    <div class="hero">
-        <h1>🚀 Welcome to GenAI Suite</h1>
-        <p>Access powerful AI tools from one unified dashboard.</p>
-    </div>
-    """, unsafe_allow_html=True)
+    # ══════════════════════════════════════════════════════
+    # AUTH CARD  (login / register)
+    # ══════════════════════════════════════════════════════
+    if mode in ("login", "register"):
+        login_err = st.session_state.login_err
+        reg_err   = st.session_state.reg_err
+        reg_ok    = st.session_state.reg_ok
+        st.session_state.login_err = ""
+        st.session_state.reg_err   = ""
+        st.session_state.reg_ok    = False
 
-    col1, col2, col3 = st.columns([1, 3, 1])
-    with col2:
+        a1 = "1" if mode == "login" else "2"
+        a2 = "2" if mode == "login" else "1"
+
+        idx = st.session_state.slide_idx % len(IMAGES)
+
+        st.markdown(f"""<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+html,body,*{{box-sizing:border-box;font-family:'Inter',sans-serif!important;}}
+#MainMenu,footer,header{{visibility:hidden!important;}}
+div[data-testid="stToolbar"],div[data-testid="stDecoration"],
+div[data-testid="stStatusWidget"]{{display:none!important;}}
+section[data-testid="stSidebar"]{{display:none!important;}}
+
+/* Full page background image — blurred behind everything */
+.stApp{{
+    background-image:url("{IMAGES[idx]}")!important;
+    background-size:cover!important;
+    background-position:center!important;
+    background-attachment:fixed!important;
+    min-height:100vh!important;
+}}
+/* Strong dark blur overlay on the FULL page */
+.stApp::before{{
+    content:"";position:fixed;inset:0;z-index:0;
+    background:rgba(0,0,0,0.45);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    pointer-events:none;
+}}
+
+/* Narrow centered column — card width controlled here */
+.block-container{{
+    padding:40px 0!important;
+    max-width:480px!important;
+    margin:0 auto!important;
+    position:relative;z-index:1;
+}}
+
+/* GLASS CARD */
+section.main > div > div > div[data-testid="stVerticalBlock"]{{
+    background:rgba(255,255,255,0.1)!important;
+    border:2px solid rgba(56,189,248,0.6)!important;
+    box-shadow:0 0 25px rgba(56,189,248,0.4);
+    border-radius:24px!important;
+    padding:40px 40px 32px!important;
+    box-shadow:0 32px 80px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.2)!important;
+    backdrop-filter:blur(20px)!important;
+    -webkit-backdrop-filter:blur(20px)!important;
+}}
+
+/* Tab active */
+div[data-testid="stHorizontalBlock"] > div:nth-child({a1}) button{{
+    background:linear-gradient(90deg,#38bdf8,#22c55e)!important;
+    color:#050a14!important;font-weight:700!important;
+    border:none!important;border-radius:10px!important;
+    height:46px!important;font-size:14px!important;
+}}
+/* Tab inactive */
+div[data-testid="stHorizontalBlock"] > div:nth-child({a2}) button{{
+    background:rgba(255,255,255,0.1)!important;color:rgba(255,255,255,0.5)!important;
+    border:1px solid rgba(255,255,255,0.15)!important;
+    border-radius:10px!important;height:46px!important;font-size:14px!important;
+}}
+div[data-testid="stHorizontalBlock"]{{gap:6px!important;margin-bottom:4px!important;}}
+
+/* Inputs */
+div[data-testid="stTextInput"] label{{color:rgba(255,255,255,0.9)!important;font-size:14px!important;font-weight:500!important;}}
+div[data-testid="stTextInput"] input{{
+    background:rgba(255,255,255,0.1)!important;
+    border:1px solid rgba(255,255,255,0.2)!important;
+    border-radius:10px!important;color:white!important;
+    font-size:15px!important;padding:13px 16px!important;
+}}
+div[data-testid="stTextInput"] input:focus{{
+    border-color:#38bdf8!important;
+    box-shadow:0 0 0 3px rgba(56,189,248,0.2)!important;
+    background:rgba(255,255,255,0.15)!important;
+}}
+div[data-testid="stTextInput"] input::placeholder{{color:rgba(255,255,255,0.35)!important;}}
+div[data-testid="stForm"]{{background:transparent!important;border:none!important;padding:0!important;}}
+
+/* Submit button */
+div[data-testid="stFormSubmitButton"]{{width:100%!important;display:block!important;}}
+div[data-testid="stFormSubmitButton"] > button{{
+    width:100%!important;height:50px!important;
+    background:linear-gradient(90deg,#38bdf8,#22c55e)!important;
+    color:#050a14!important;border:none!important;border-radius:10px!important;
+    font-size:15px!important;font-weight:700!important;cursor:pointer!important;margin-top:10px!important;
+    display:block!important;
+}}
+div[data-testid="stFormSubmitButton"] > button:hover{{
+    opacity:0.9!important;transform:translateY(-1px)!important;
+}}
+
+/* Other buttons */
+div[data-testid="stButton"] button{{
+    width:100%!important;height:46px!important;border-radius:10px!important;
+    font-size:14px!important;cursor:pointer!important;
+    background:rgba(255,255,255,0.1)!important;color:white!important;
+    border:1px solid rgba(255,255,255,0.15)!important;
+}}
+div[data-testid="stButton"] button:hover{{background:rgba(255,255,255,0.2)!important;}}
+
+/* Back to home — link style */
+div[data-testid="stButton"]:last-of-type button{{
+    background:transparent!important;border:none!important;
+    color:#38bdf8!important;font-size:14px!important;height:36px!important;
+}}
+
+/* Forgot password */
+div[data-testid="stButton"]:has(button[key="forgot_btn"]){{
+    display:flex!important;justify-content:center!important;margin-top:4px!important;
+}}
+div[data-testid="stButton"]:has(button[key="forgot_btn"]) button{{
+    all:unset!important;color:#38bdf8!important;font-size:13px!important;
+    cursor:pointer!important;text-align:center!important;
+}}
+
+.gn-divider{{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:rgba(255,255,255,0.3);font-size:12px;}}
+.gn-divider::before,.gn-divider::after{{content:'';flex:1;height:1px;background:rgba(255,255,255,0.15);}}
+.gn-msg-err{{background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;}}
+.gn-msg-ok{{background:rgba(34,197,94,0.2);border:1px solid rgba(34,197,94,0.4);color:#86efac;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;}}
+</style>""", unsafe_allow_html=True)
+
+        # Logo + brand
         st.markdown("""
-        <div style='text-align:center;margin-bottom:30px;'>
-            <div class='login-title'>🔐 Login to GenAI Suite</div>
-            <div class='sub-text'>Secure access to your AI dashboard</div>
-        </div>
-        """, unsafe_allow_html=True)
+<div style="text-align:center;font-size:42px;margin-bottom:6px;">🤖</div>
+<div style="text-align:center;font-size:11px;font-weight:700;letter-spacing:3px;
+    background:linear-gradient(90deg,#38bdf8,#22c55e);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px;">
+  GenAI Multi-Module Application </div>""", unsafe_allow_html=True)
 
-        if not st.session_state.show_signup:
-            # LOGIN FORM
-            username = st.text_input("Username", key="login_user")
-            password = st.text_input("Password", type="password", key="login_pass")
+        # Tab switcher
+        tc1, tc2 = st.columns(2)
+        with tc1:
+            if st.button("🔐 Login", key=f"tab_l_{mode}", use_container_width=True):
+                st.session_state.auth_mode = "login"; st.session_state.login_err = ""; st.rerun()
+        with tc2:
+            if st.button("✨ Register", key=f"tab_r_{mode}", use_container_width=True):
+                st.session_state.auth_mode = "register"; st.session_state.reg_err = ""; st.rerun()
 
-            if st.button("🚀 LOGIN", use_container_width=True):
-                user = login_user(username.strip(), password.strip())
-                if user:
-                    st.session_state.authenticated = True
-                    st.session_state.username = username.strip()
-                    st.rerun()
-                else:
-                    st.error("Invalid username or password")
-
-            st.markdown("<div style='text-align:center;margin-top:20px;color:#94a3b8;'>Don't have an account?</div>",
-                        unsafe_allow_html=True)
-
-            if st.button("Register here", use_container_width=True):
-                st.session_state.show_signup = True
-                st.rerun()
-
+        # Title
+        if mode == "login":
+            st.markdown("""
+<div style="text-align:center;font-size:24px;font-weight:800;color:white;margin:20px 0 4px;">Welcome back 👋</div>
+<div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:18px;">Sign in to your GenAI Suite account</div>""", unsafe_allow_html=True)
         else:
-            # SIGNUP FORM
-            new_user    = st.text_input("Username", key="signup_user")
-            new_pass    = st.text_input("Password", type="password", key="signup_pass")
-            confirm     = st.text_input("Confirm Password", type="password", key="signup_confirm")
+            st.markdown("""
+<div style="text-align:center;font-size:24px;font-weight:800;color:white;margin:20px 0 4px;">Create Account ✨</div>
+<div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:18px;">Join GenAI Suite — free to get started</div>""", unsafe_allow_html=True)
 
-            if st.button("📝 CREATE ACCOUNT", use_container_width=True):
-                if new_pass != confirm:
-                    st.error("Passwords do not match")
-                elif len(new_pass) < 4:
-                    st.error("Password must be at least 4 characters")
-                else:
-                    success = register_user(new_user.strip(), new_pass.strip())
-                    if success:
-                        st.success("Account created! Please login.")
-                        st.session_state.show_signup = False
-                        st.rerun()
+        # Error/success messages
+        if login_err and mode == "login":
+            st.markdown(f'<div class="gn-msg-err">{login_err}</div>', unsafe_allow_html=True)
+        if reg_err and mode == "register":
+            st.markdown(f'<div class="gn-msg-err">{reg_err}</div>', unsafe_allow_html=True)
+        if reg_ok:
+            st.markdown('<div class="gn-msg-ok">✅ Account created! Please sign in.</div>', unsafe_allow_html=True)
+
+        if mode == "login":
+            if st.session_state.get("forgot_mode", False):
+                # FORGOT PASSWORD
+                st.markdown('<div style="text-align:center;font-size:20px;font-weight:800;color:white;margin:10px 0 4px;">Reset Password</div>', unsafe_allow_html=True)
+                st.markdown('<div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:16px;">Enter your username and set a new password</div>', unsafe_allow_html=True)
+                if st.session_state.get("forgot_err"):
+                    st.markdown(f'<div class="gn-msg-err">{st.session_state.forgot_err}</div>', unsafe_allow_html=True)
+                    st.session_state.forgot_err = ""
+                if st.session_state.get("forgot_msg"):
+                    st.markdown(f'<div class="gn-msg-ok">{st.session_state.forgot_msg}</div>', unsafe_allow_html=True)
+                    st.session_state.forgot_msg = ""
+                with st.form("forgot_form", clear_on_submit=True):
+                    fu  = st.text_input("Username", placeholder="Enter your username")
+                    fp  = st.text_input("New Password", placeholder="New password (min 4 chars)", type="password")
+                    fp2 = st.text_input("Confirm Password", placeholder="Confirm new password", type="password")
+                    fsub = st.form_submit_button("Reset Password", use_container_width=True)
+                if fsub:
+                    fu, fp, fp2 = fu.strip(), fp.strip(), fp2.strip()
+                    if not (fu and fp and fp2):
+                        st.session_state.forgot_err = "❌ Please fill in all fields"; st.rerun()
+                    elif len(fp) < 4:
+                        st.session_state.forgot_err = "❌ Password must be 4+ characters"; st.rerun()
+                    elif fp != fp2:
+                        st.session_state.forgot_err = "❌ Passwords do not match"; st.rerun()
                     else:
-                        st.error("Username already exists")
+                        from database import get_all_users, change_user_password
+                        if fu not in get_all_users():
+                            st.session_state.forgot_err = "❌ Username not found"; st.rerun()
+                        else:
+                            change_user_password(fu, fp)
+                            st.session_state.forgot_msg = "✅ Password reset! Please sign in."
+                            st.session_state.forgot_mode = False; st.rerun()
+                if st.button("← Back to Login", key="back_to_login", use_container_width=True):
+                    st.session_state.forgot_mode = False; st.rerun()
+            else:
+                # NORMAL LOGIN
+                with st.form("login_form", clear_on_submit=True):
+                    u = st.text_input("Username", placeholder="Enter your username")
+                    p = st.text_input("Password", placeholder="Enter your password", type="password")
+                    submitted = st.form_submit_button("🚀 Sign In", use_container_width=True)
+                if submitted:
+                    u, p = u.strip(), p.strip()
+                    if not (u and p):
+                        st.session_state.login_err = "❌ Please enter username and password"; st.rerun()
+                    elif login_user(u, p):
+                        st.session_state.authenticated = True
+                        st.session_state.username = u
+                        st.session_state.auth_mode = None; st.rerun()
+                    else:
+                        st.session_state.login_err = "❌ Invalid username or password"; st.rerun()
+                if st.button("Forgot password?", key="forgot_btn"):
+                    st.session_state.forgot_mode = True; st.rerun()
+                st.markdown('<div class="gn-divider">New to GenAI Suite?</div>', unsafe_allow_html=True)
+                if st.button("Create a free account →", key="to_reg", use_container_width=True):
+                    st.session_state.auth_mode = "register"; st.session_state.login_err = ""; st.rerun()
+        else:
+            with st.form("register_form", clear_on_submit=True):
+                u  = st.text_input("Username", placeholder="Choose a username")
+                p  = st.text_input("Password", placeholder="Create a password (min 4 chars)", type="password")
+                p2 = st.text_input("Confirm Password", placeholder="Confirm your password", type="password")
+                submitted = st.form_submit_button("✅ Create Account", use_container_width=True)
+            if submitted:
+                u, p, p2 = u.strip(), p.strip(), p2.strip()
+                if not (u and p and p2):
+                    st.session_state.reg_err = "❌ Please fill in all fields"; st.rerun()
+                elif len(p) < 4:
+                    st.session_state.reg_err = "❌ Password must be 4+ characters"; st.rerun()
+                elif p != p2:
+                    st.session_state.reg_err = "❌ Passwords do not match"; st.rerun()
+                elif register_user(u, p):
+                    st.session_state.reg_ok = True; st.session_state.auth_mode = "login"; st.rerun()
+                else:
+                    st.session_state.reg_err = "❌ Username already exists"; st.rerun()
+            st.markdown('<div class="gn-divider">Already have an account?</div>', unsafe_allow_html=True)
+            if st.button("Sign in instead →", key="to_login", use_container_width=True):
+                st.session_state.auth_mode = "login"; st.session_state.reg_err = ""; st.rerun()
 
-            if st.button("Back to Login", use_container_width=True):
-                st.session_state.show_signup = False
-                st.rerun()
+        if st.button("← Back to home", key="back_home", use_container_width=True):
+            st.session_state.auth_mode = None; st.rerun()
+
+        return False
+
+    # ══════════════════════════════════════════════════════
+    # LANDING PAGE  (mode is None)
+    # ══════════════════════════════════════════════════════
+    idx = st.session_state.slide_idx % len(IMAGES)
+
+    dots = "".join([
+        f'<span style="display:inline-block;height:7px;border-radius:4px;'
+        f'width:{"22px" if i==idx else "7px"};margin-right:7px;'
+        f'background:{"rgba(255,255,255,0.9)" if i==idx else "rgba(255,255,255,0.3)"};"></span>'
+        for i in range(len(IMAGES))
+    ])
+    cards = "".join([
+        f'<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);'
+        f'border-radius:14px;padding:20px 18px;">'
+        f'<div style="font-size:24px;margin-bottom:8px;">{ic}</div>'
+        f'<div style="font-size:14px;font-weight:600;color:white;margin-bottom:4px;">{nm}</div>'
+        f'<div style="font-size:12px;color:rgba(255,255,255,0.38);">{ds}</div></div>'
+        for ic,nm,ds in [
+            ("💬","AI Chatbot","LLaMA 3.3 70B"),("📝","Text Generation","High-quality content"),
+            ("🎤","Speech to Text","Whisper Large V3"),("🔊","Text to Speech","Natural audio"),
+            ("🖼","Image Analysis","AI descriptions"),("📄","Document Q&A","Chat with PDFs"),
+            ("📊","PPT Generator","Professional slides"),("📁","File Extractor","Text & tables"),
+            ("🎨","Image Generation","Stable Diffusion"),
+        ]
+    ])
+
+    st.markdown(f"""<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+html,body,*{{box-sizing:border-box;font-family:'Inter',sans-serif!important;}}
+#MainMenu,footer,header{{visibility:hidden!important;}}
+div[data-testid="stToolbar"],div[data-testid="stDecoration"],
+div[data-testid="stStatusWidget"]{{display:none!important;}}
+section[data-testid="stSidebar"]{{display:none!important;}}
+.block-container{{padding:0!important;max-width:100%!important;margin:0!important;}}
+.stApp{{
+    background-image:url("{IMAGES[idx]}");
+    background-size:cover!important;background-position:center!important;
+    background-attachment:fixed!important;min-height:100vh!important;
+}}
+.stApp::before{{content:"";position:fixed;inset:0;z-index:0;background:rgba(0,0,0,0.54);pointer-events:none;}}
+div[data-testid="stHorizontalBlock"]:first-of-type{{
+    position:fixed!important;top:13px!important;right:40px!important;
+    z-index:99999!important;width:auto!important;background:transparent!important;
+    display:flex!important;gap:10px!important;
+}}
+div[data-testid="stHorizontalBlock"]:first-of-type > div{{flex:none!important;width:auto!important;padding:0!important;}}
+div[data-testid="stHorizontalBlock"]:first-of-type > div:nth-child(1) button{{
+    background:rgba(255,255,255,0.1)!important;color:white!important;
+    border:1px solid rgba(255,255,255,0.25)!important;border-radius:8px!important;
+    font-size:13px!important;font-weight:600!important;height:38px!important;padding:0 20px!important;
+}}
+div[data-testid="stHorizontalBlock"]:first-of-type > div:nth-child(1) button:hover{{background:rgba(255,255,255,0.2)!important;}}
+div[data-testid="stHorizontalBlock"]:first-of-type > div:nth-child(2) button{{
+    background:rgba(255,255,255,0.92)!important;color:#050a14!important;
+    border:none!important;border-radius:8px!important;
+    font-size:13px!important;font-weight:700!important;height:38px!important;padding:0 20px!important;
+}}
+div[data-testid="stHorizontalBlock"]:first-of-type > div:nth-child(2) button:hover{{background:white!important;}}
+</style>""", unsafe_allow_html=True)
+
+    n1, n2 = st.columns([1,1])
+    with n1:
+        nav_login = st.button("🔐 Login", key="nav_login")
+    with n2:
+        nav_reg = st.button("✨ Register", key="nav_reg")
+
+    if nav_login:
+        st.session_state.auth_mode = "login"
+        st.session_state.login_err = ""
+        st.rerun()
+    if nav_reg:
+        st.session_state.auth_mode = "register"
+        st.session_state.reg_err = ""
+        st.rerun()
+
+    st.markdown(f"""
+<div style="position:fixed;top:0;left:0;right:0;z-index:9000;height:64px;padding:0 40px;
+    display:flex;align-items:center;justify-content:space-between;
+    background:rgba(5,10,20,0.82);backdrop-filter:blur(20px);
+    border-bottom:1px solid rgba(255,255,255,0.07);">
+  <div style="font-size:20px;font-weight:800;color:white;">🤖 GenAI Multi-Module Application </div>
+  <div style="display:flex;gap:28px;">
+    <a href="#" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:14px;">Features</a>
+    <a href="#" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:14px;">Modules</a>
+    <a href="#" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:14px;">About</a>
+  </div>
+  <div style="width:230px;"></div>
+</div>
+<div style="min-height:100vh;display:flex;align-items:flex-end;padding:64px 7% 11%;position:relative;z-index:1;">
+  <div style="max-width:600px;">
+    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);
+        border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.88);
+        font-size:12px;font-weight:500;padding:5px 14px;border-radius:20px;margin-bottom:18px;">✦ {CAPS[idx]}</div>
+    <div style="font-size:clamp(36px,5vw,64px);font-weight:800;color:white;line-height:1.06;margin-bottom:12px;letter-spacing:-1.5px;">Unlock the Power of<br>Generative AI</div>
+    <div style="font-size:16px;color:rgba(255,255,255,0.55);line-height:1.6;">{SUBS[idx]}</div>
+    <div style="margin-top:20px;">{dots}</div>
+  </div>
+</div>
+<div style="position:relative;z-index:1;background:rgba(0,0,0,0.72);backdrop-filter:blur(20px);padding:60px 7%;border-top:1px solid rgba(255,255,255,0.06);">
+  <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.38);letter-spacing:3px;text-transform:uppercase;">What We Offer</div>
+  <div style="font-size:32px;font-weight:800;color:white;margin-top:10px;letter-spacing:-0.8px;">9 Powerful AI Modules</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px;margin-top:30px;">{cards}</div>
+</div>
+""", unsafe_allow_html=True)
+
+    time.sleep(4)
+    st.session_state.slide_idx += 1
+    st.rerun()
 
     return False
 
 
 def logout():
-    st.session_state.clear()
-    st.rerun()
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.cache_data.clear()
+    st.markdown('<meta http-equiv="refresh" content="0">', unsafe_allow_html=True)
+    st.stop()

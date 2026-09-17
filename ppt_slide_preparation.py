@@ -480,7 +480,7 @@ Now create {slide_count} slides for: {topic}"""
                 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
                 resp   = client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
-                    model="llama-3.3-70b-versatile",
+                    model="openai/gpt-oss-120b",
                     max_tokens=2048,
                 )
                 ai_text = resp.choices[0].message.content
